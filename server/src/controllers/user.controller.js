@@ -1,8 +1,8 @@
 const User = require("../models/user.model");
 const { USER_ROLE } = require("../constants/user.constants");
-const { BadRequestError } = require("../errors/Errors");
+const userService = require("../services/user.service");
 
-const selectedUserFiled = [
+const selectedUserField = [
   "_id",
   "email",
   "firstName",
@@ -18,15 +18,18 @@ const selectedUserFiled = [
 ].join(" ");
 
 exports.getAllUsersByRole = async (req, res, next) => {
-  const { fetcherRole } = req.query;
-  if (!fetcherRole)
-    return next(new BadRequestError("Please provide fetcherRole query"));
+  const userRole = await userService.getUserRoleById(req.userId);
+
+  console.log("someone made request");
+
   const filterRoleByFetcherRole =
-    fetcherRole === USER_ROLE.ENTREPRENEUR
+    userRole === USER_ROLE.ENTREPRENEUR
       ? USER_ROLE.CONSULTANT
       : USER_ROLE.ENTREPRENEUR;
+
   const users = await User.find({ role: filterRoleByFetcherRole }).select(
-    selectedUserFiled
+    selectedUserField
   );
+
   res.status(200).send(users);
 };
